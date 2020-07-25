@@ -1,12 +1,12 @@
 {
-	"name": "quickjs-debug",
-	"displayName": "QuickJS Debugger",
-	"version": "0.0.13",
+	"name": "godot-javascript-debug",
+	"displayName": "Godot JavaScript Debugger",
+	"version": "0.1.0",
 	"publisher": "koush",
-	"description": "Debug the QuickJS runtime.",
+	"description": "Debug the Godot Game runtime.",
 	"author": {
-		"name": "Koushik Dutta",
-		"email": "koushd@gmail.com"
+		"name": "Geequlim",
+		"email": "geequlim@gmail.com"
 	},
 	"license": "MIT",
 	"keywords": [
@@ -14,19 +14,19 @@
 	],
 	"engines": {
 		"vscode": "^1.33.0",
-		"node": "^10.15.1"
+		"node": "^14.5.0"
 	},
-	"icon": "images/quickjs-debug-icon.png",
+	"icon": "images/godot-debug-icon.png",
 	"categories": [
 		"Debuggers"
 	],
 	"private": true,
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/koush/vscode-quickjs-debug.git"
+		"url": "https://github.com/GodotExplorer/godot-javascript-debug.git"
 	},
 	"bugs": {
-		"url": "https://github.com/koush/vscode-quickjs-debug/issues"
+		"url": "https://github.com/GodotExplorer/godot-javascript-debug/issues"
 	},
 	"scripts": {
 		"prepublish": "tsc -p ./src",
@@ -38,20 +38,22 @@
 		"publish": "vsce publish"
 	},
 	"dependencies": {
+		"@types/glob": "^7.1.3",
 		"await-notify": "1.0.1",
+		"glob": "^7.1.6",
 		"source-map": "^0.7.3",
 		"stream-parser": "^0.3.1",
 		"vscode-debugadapter": "1.37.0"
 	},
 	"devDependencies": {
-		"@types/node": "10.12.12",
 		"@types/mocha": "5.2.7",
-		"typescript": "3.5.3",
+		"@types/node": "^14.0.26",
 		"mocha": "6.2.0",
-		"vscode": "1.1.36",
-		"vscode-debugadapter-testsupport": "1.37.0",
 		"tslint": "5.18.0",
-		"vsce": "1.66.0"
+		"typescript": "3.5.3",
+		"vsce": "1.66.0",
+		"vscode": "1.1.36",
+		"vscode-debugadapter-testsupport": "1.37.0"
 	},
 	"main": "./out/extension",
 	"activationEvents": [
@@ -65,30 +67,20 @@
 		],
 		"debuggers": [
 			{
-				"type": "quickjs",
-				"label": "QuickJS Debug",
+				"type": "godot-quickjs",
+				"label": "Godot JavaScript Debugger",
 				"program": "./out/debugAdapter.js",
 				"runtime": "node",
 				"configurationAttributes": {
 					"launch": {
 						"required": [
-							"program",
-							"runtimeExecutable"
+							"program"
 						],
 						"properties": {
 							"program": {
 								"type": "string",
-								"description": "Absolute path to a js file.",
-								"default": "${workspaceFolder}/main.js"
-							},
-							"console": {
-								"type": "string",
-								"enum": [
-									"internalConsole",
-									"integratedTerminal",
-									"externalTerminal"
-								],
-								"default": "internalConsole"
+								"description": "Your godot executable file path",
+								"default": "/path/to/godot"
 							},
 							"args": {
 								"type": "array",
@@ -101,22 +93,9 @@
 								"type": "string",
 								"default": "${workspaceFolder}"
 							},
-							"runtimeExecutable": {
+							"hostname": {
 								"type": "string",
-								"description": "Path to qjs executable"
-							},
-							"mode": {
-								"type": "string",
-								"description": "The debugger connection mode. Use 'listen' to have VS Code wait for QuickJS to connect. Use 'connect' to have VSCode attach to a QuickJS runtime that is listening for a debugger.",
-								"enum": [
-									"connect",
-									"listen"
-								],
-								"default": "listen"
-							},
-							"address": {
-								"type": "string",
-								"description": "The address used by he debug extension for incoming/outgoing sessions (connection 'mode' dependent).",
+								"description": "The hostname used by he debug extension for incoming/outgoing sessions (connection 'mode' dependent).",
 								"default": "localhost"
 							},
 							"port": {
@@ -124,44 +103,33 @@
 								"description": "The port used by he debug extension for incoming/outgoing sessions. (connection 'mode' dependent)",
 								"default": 0
 							},
-							"localRoot": {
-								"type": "string",
-								"description": "The local source root use for files that do not have source maps.",
-								"default": "${workspaceFolder}/"
-							},
-							"remoteRoot": {
-								"type": "string",
-								"description": "The remote root use for files that do not have source maps.",
-								"default": ""
-							},
 							"trace": {
 								"type": "boolean",
 								"description": "Enable logging of the Debug Adapter Protocol.",
 								"default": true
 							},
 							"sourceMaps": {
+								"type": "boolean",
+								"description": "Use JavaScript source maps (if they exist)",
+								"default": true
+							},
+							"sourceMapPathOverrides": {
 								"type": "object",
-								"description": "The sourcemaps from a transpilation tool like webpack and their corresponding remoteRoots. Specifying null will use the default remoteRoot.",
+								"description": "A set of mappings for rewriting the locations of source files from what the sourcemap says, to their locations on disk.",
 								"default": {
-									"${workspaceFolder}/out/main.quickjs.js.map": "${workspaceFolder}/src"
+									"res://": "${workspaceRoot}/",
+									"webpack:///./~/*": "${workspaceRoot}/node_modules/*",
+									"webpack:///./*": "${workspaceRoot}/*",
+									"webpack:///*": "*"
 								}
 							}
 						}
 					},
 					"attach": {
 						"properties": {
-							"mode": {
+							"hostname": {
 								"type": "string",
-								"description": "The debugger connection mode. Use 'listen' to have VS Code wait for QuickJS to connect. Use 'connect' to have VSCode attach to a QuickJS runtime that is listening for a debugger.",
-								"enum": [
-									"connect",
-									"listen"
-								],
-								"default": "listen"
-							},
-							"address": {
-								"type": "string",
-								"description": "The address used by he debug extension for incoming/outgoing sessions (connection 'mode' dependent).",
+								"description": "The hostname used by he debug extension for incoming/outgoing sessions (connection 'mode' dependent).",
 								"default": "localhost"
 							},
 							"port": {
@@ -169,26 +137,24 @@
 								"description": "The port used by he debug extension for incoming/outgoing sessions. (connection 'mode' dependent)",
 								"default": 0
 							},
-							"localRoot": {
-								"type": "string",
-								"description": "The local source root used for unqualified files.",
-								"default": "${workspaceFolder}/"
-							},
-							"remoteRoot": {
-								"type": "string",
-								"description": "The remote root use for files that do not have source maps.",
-								"default": ""
-							},
 							"trace": {
 								"type": "boolean",
 								"description": "Enable logging of the Debug Adapter Protocol.",
 								"default": true
 							},
 							"sourceMaps": {
+								"type": "boolean",
+								"description": "Use JavaScript source maps (if they exist)",
+								"default": true
+							},
+							"sourceMapPathOverrides": {
 								"type": "object",
-								"description": "The sourcemaps from a transpilation tool like webpack and their corresponding remoteRoots. Specifying null will use the default remoteRoot.",
+								"description": "A set of mappings for rewriting the locations of source files from what the sourcemap says, to their locations on disk.",
 								"default": {
-									"${workspaceFolder}/out/main.quickjs.js.map": "${workspaceFolder}/src"
+									"res://": "${workspaceRoot}/",
+									"webpack:///./~/*": "${workspaceRoot}/node_modules/*",
+									"webpack:///./*": "${workspaceRoot}/*",
+									"webpack:///*": "*"
 								}
 							}
 						}
@@ -196,33 +162,32 @@
 				},
 				"initialConfigurations": [
 					{
-						"type": "quickjs",
+						"type": "godot-quickjs",
 						"request": "launch",
-						"name": "Launch QuickJS",
-						"runtimeExecutable": "/path/to/qjs",
-						"program": "^\"${workspaceFolder}/main.js\""
+						"name": "Launch Godot Game",
+						"program": "/path/to/qjs"
 					}
 				],
 				"configurationSnippets": [
 					{
-						"label": "QuickJS Debug: Launch",
+						"label": "Godot Debug: Launch",
 						"description": "A new configuration for launching and debugging a JavaScript file in QuickJS.",
 						"body": {
-							"type": "quickjs",
+							"type": "godot-quickjs",
 							"request": "launch",
-							"name": "Launch QuickJS",
-							"runtimeExecutable": "/path/to/qjs",
-							"program": "^\"\\${workspaceFolder}/main.js\""
+							"name": "Launch Godot",
+							"program": "/path/to/qjs"
 						}
 					},
 					{
-						"label": "QuickJS Debug: Attach",
+						"label": "Godot Debug: Attach",
 						"description": "A new configuration for launching and waiting fpr QuickJS to attach.",
 						"body": {
-							"type": "quickjs",
-							"request": "launch",
-							"name": "Attach QuickJS",
-							"localRoot": "^\"\\${workspaceFolder}/\""
+							"type": "godot-quickjs",
+							"request": "attach",
+							"name": "Attach to Godot",
+							"hostname": "localhost",
+							"port": 5556
 						}
 					}
 				]
