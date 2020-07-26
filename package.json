@@ -84,9 +84,7 @@
 							},
 							"args": {
 								"type": "array",
-								"items": {
-									"type": "string"
-								},
+								"items": { "type": "string" },
 								"default": []
 							},
 							"cwd": {
@@ -95,18 +93,13 @@
 							},
 							"hostname": {
 								"type": "string",
-								"description": "The hostname used by he debug extension for incoming/outgoing sessions (connection 'mode' dependent).",
+								"description": "The hostname used by he debug extension for incoming/outgoing sessions",
 								"default": "localhost"
 							},
 							"port": {
 								"type": "number",
-								"description": "The port used by he debug extension for incoming/outgoing sessions. (connection 'mode' dependent)",
+								"description": "The port used by he debug extension for incoming/outgoing sessions.",
 								"default": 0
-							},
-							"trace": {
-								"type": "boolean",
-								"description": "Enable logging of the Debug Adapter Protocol.",
-								"default": true
 							},
 							"sourceMaps": {
 								"type": "boolean",
@@ -137,11 +130,6 @@
 								"description": "The port used by he debug extension for incoming/outgoing sessions. (connection 'mode' dependent)",
 								"default": 0
 							},
-							"trace": {
-								"type": "boolean",
-								"description": "Enable logging of the Debug Adapter Protocol.",
-								"default": true
-							},
 							"sourceMaps": {
 								"type": "boolean",
 								"description": "Use JavaScript source maps (if they exist)",
@@ -170,8 +158,8 @@
 				],
 				"configurationSnippets": [
 					{
-						"label": "Godot Debug: Launch",
-						"description": "A new configuration for launching and debugging a JavaScript file in QuickJS.",
+						"label": "Godot JavaScript: Launch",
+						"description": "A new configuration for launching and debugging JavaScript in Godot.",
 						"body": {
 							"type": "godot-quickjs",
 							"request": "launch",
@@ -180,8 +168,8 @@
 						}
 					},
 					{
-						"label": "Godot Debug: Attach",
-						"description": "A new configuration for launching and waiting fpr QuickJS to attach.",
+						"label": "Godot JavaScript: Attach",
+						"description": "A new configuration for connect to Godot JavaScript debugger.",
 						"body": {
 							"type": "godot-quickjs",
 							"request": "attach",
