@@ -1,8 +1,10 @@
 # Godot JavaScript Debug for VS Code
 
-This is a VSCode debug adapter for [Godot JavaScript binding](https://bellard.org/quickjs/).
+This is a VSCode debug adapter for [Godot JavaScript binding](https://github.com/GodotExplorer/ECMAScript). You can install it form the [Visual Studio Code market place directly](https://marketplace.visualstudio.com/items?itemName=geequlim.godot-javascript-debug).
 
-Godot Debugger supports
+Godot Debugger supports debugging from launch a project to or attach to a running game process.
+
+### Features:
 - Pause
 - Continue
 - Step over
