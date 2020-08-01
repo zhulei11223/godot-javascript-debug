@@ -194,6 +194,7 @@ export class QuickJSDebugSession extends SourceMapSession {
 				thread = 0;
 				this.onThreadDead(thread, 'socket closed');
 			}
+			this.stop();
 		}
 		socket.pipe(parser as any);
 		socket.on('error', cleanup);
@@ -223,7 +224,6 @@ export class QuickJSDebugSession extends SourceMapSession {
 			return;
 		}
 
-		await this.loadSourceMaps();
 		// wait a secons to setup the initial breakpoints
 		await new Promise(resolve => setTimeout(resolve, 1000));
 
@@ -256,6 +256,9 @@ export class QuickJSDebugSession extends SourceMapSession {
 
 	private async connect(type: DebugType): Promise<ConnectionConfig> {
 		logger.setup(Logger.LogLevel.Error, false);
+
+		await this.loadSourceMaps();
+
 		if (type == DebugType.Launch) {
 			const hostname = this.get_configs().hostname || 'localhost';
 			this._server = new Server(this.onSocket.bind(this));
@@ -272,23 +275,19 @@ export class QuickJSDebugSession extends SourceMapSession {
 			};
 
 			let socket;
-			const max_attempt = 5;
-			for (var attempt = 1; attempt <= 5; attempt++) {
-				try {
-					socket = await new Promise<Socket>((resolve, reject) => {
-						var socket = createConnection(connect.port, connect.hostname);
-						socket.on('error', reject);
-						socket.on('close', reject);
-						socket.on('connect', () => {
-							socket.removeAllListeners();
-							resolve(socket)
-						});
+			try {
+				socket = await new Promise<Socket>((resolve, reject) => {
+					var socket = createConnection(connect.port, connect.hostname);
+					socket.on('error', reject);
+					socket.on('close', reject);
+					socket.on('connect', () => {
+						socket.removeAllListeners();
+						resolve(socket)
 					});
-					break;
-				} catch (e) {
-					this.sendEvent(new OutputEvent(`Failed connect to Godot debugger with ${connect.hostname}:${connect.port} retry: ${attempt}/${max_attempt}\r\n`, 'stderr'));
-					await new Promise(resolve => setTimeout(resolve, 2000));
-				}
+				});
+			} catch (e) {
+				this.sendEvent(new OutputEvent(`Failed connect to Godot debugger with ${connect.hostname}:${connect.port}\r\n`, 'stderr'));
+				this.stop();
 			}
 			if (!socket) {
 				const err = `Cannot launch connect (${connect.hostname}:${connect.port})`;
