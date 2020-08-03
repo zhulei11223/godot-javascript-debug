@@ -8,6 +8,7 @@ import * as vscode from 'vscode';
 import { WorkspaceFolder, DebugConfiguration, ProviderResult, CancellationToken } from 'vscode';
 import { QuickJSDebugSession } from './quickjsDebug';
 import * as Net from 'net';
+import * as normalize from 'normalize-path';
 
 export function activate(context: vscode.ExtensionContext) {
 	// register a configuration provider for 'godot-quickjs' debug type
@@ -32,10 +33,11 @@ class QuickJSConfigurationProvider implements vscode.DebugConfigurationProvider 
 	 * e.g. add all missing attributes to the debug configuration.
 	 */
 	resolveDebugConfiguration(folder: WorkspaceFolder | undefined, config: DebugConfiguration | CommonArguments, token?: CancellationToken): ProviderResult<DebugConfiguration> {
-		config.cwd = config.cwd || folder.uri.path;
-		config.cwd = config.cwd.replace("${workspaceFolder}", folder.uri.path);
+		const workspace_root = normalize(folder.uri.fsPath);
+		config.cwd = config.cwd || workspace_root;
+		config.cwd = config.cwd.replace("${workspaceFolder}", workspace_root);
 		if (config.program) {
-			config.program = config.program.replace("${workspaceFolder}", folder.uri.path);
+			config.program = config.program.replace("${workspaceFolder}", workspace_root);
 		}
 		return config as DebugConfiguration;
 	}

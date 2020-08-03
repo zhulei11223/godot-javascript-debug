@@ -3,6 +3,7 @@ import { LoggingDebugSession } from 'vscode-debugadapter';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as glob from 'glob';
+import * as normalize from 'normalize-path';
 
 export abstract class SourceMapSession extends LoggingDebugSession {
 
@@ -26,11 +27,11 @@ export abstract class SourceMapSession extends LoggingDebugSession {
 		for (const file of files) {
 			const source_map_file: string = path.join(commonArgs.cwd, file);
 			const smc = await this.load_source_map(source_map_file);
-			let js_file = source_map_file.substring(0, source_map_file.length - ".map".length);
+			let js_file = normalize(source_map_file.substring(0, source_map_file.length - ".map".length));
 			if (fs.existsSync(js_file)) {
 				js_file = this.global_to_relative(js_file);
 			} else {
-				js_file = smc.file;
+				js_file = normalize(smc.file);
 			}
 			smc.file = js_file;
 			this._generatedfileToSourceMap.set(js_file, smc);
@@ -42,12 +43,12 @@ export abstract class SourceMapSession extends LoggingDebugSession {
 
 	private global_to_relative(p_file) {
 		const commonArgs = this.get_configs();
-		return path.relative(commonArgs.cwd, p_file);
+		return path.relative(commonArgs.cwd, normalize(p_file));
 	}
 
 	private relative_to_global(p_file) {
 		const commonArgs = this.get_configs();
-		return path.join(commonArgs.cwd, p_file);
+		return path.join(commonArgs.cwd, normalize(p_file));
 	}
 
 
