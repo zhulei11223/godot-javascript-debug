@@ -1,7 +1,7 @@
 {
 	"name": "godot-javascript-debug",
 	"displayName": "Godot JavaScript Debugger",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"publisher": "geequlim",
 	"description": "Debug the Godot Game runtime.",
 	"author": {

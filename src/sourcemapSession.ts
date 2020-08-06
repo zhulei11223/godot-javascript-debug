@@ -1,4 +1,5 @@
-import { BasicSourceMapConsumer, MappedPosition, NullablePosition, SourceMapConsumer } from 'source-map';
+import {SourceMapConsumer} from 'source-map';
+import { BasicSourceMapConsumer, NullableMappedPosition, MappedPosition, NullablePosition } from 'source-map';
 import { LoggingDebugSession } from 'vscode-debugadapter';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -79,12 +80,10 @@ export abstract class SourceMapSession extends LoggingDebugSession {
 		try {
 			const sm = this._generatedfileToSourceMap.get(sourceLocation.source);
 			if (!sm) throw new Error('no source map');
-			const original = sm.originalPositionFor({
-				line: sourceLocation.line + 1,
-				column: sourceLocation.column,
-			});
-			if (original.line === null || original.column === null || original.source === null)
+			let original = sm.originalPositionFor({line: sourceLocation.line, column: sourceLocation.column, bias: SourceMapConsumer.LEAST_UPPER_BOUND});
+			if (this.is_null_poisition(original)) {
 				throw new Error("unable to map");
+			}
 			// now given a source mapped relative path, translate that into a local path.
 			return {
 				source: this.relative_to_global(sm.sources[0]),
@@ -96,5 +95,10 @@ export abstract class SourceMapSession extends LoggingDebugSession {
 			ret.source = this.relative_to_global(sourceLocation.source);
 			return ret;
 		}
+	}
+
+	private is_null_poisition(pos: NullableMappedPosition) {
+		const original = pos;
+		return (original == null || original.line === null || original.column === null || original.source === null);
 	}
 }
