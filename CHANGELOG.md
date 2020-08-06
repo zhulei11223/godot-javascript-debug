@@ -1,3 +1,7 @@
+0.1.2
+- Fix Windows file path resolve
+- Update to latest QuickJS debugger protocal
+
 0.1.1
 - Add attach to godot game support
 
