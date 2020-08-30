@@ -1,3 +1,6 @@
+0.1.3
+- Improve SourceMap resolving
+
 0.1.2
 - Fix Windows file path resolve
 - Update to latest QuickJS debugger protocal
