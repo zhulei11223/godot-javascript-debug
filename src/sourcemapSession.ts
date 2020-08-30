@@ -64,7 +64,6 @@ export abstract class SourceMapSession extends LoggingDebugSession {
 			const sm = this._sourceMaps.get(workspace_path);
 			if (!sm) throw new Error('no source map');
 			const actualSourceLocation = Object.assign({}, sourceLocation);
-			actualSourceLocation.source = workspace_path;
 			var unmappedPosition: NullablePosition = sm.generatedPositionFor(actualSourceLocation);
 			if (!unmappedPosition.line === null) throw new Error('map failed');
 			return {
@@ -89,12 +88,7 @@ export abstract class SourceMapSession extends LoggingDebugSession {
 			if (this.is_null_poisition(original)) {
 				throw new Error("unable to map");
 			}
-			// now given a source mapped relative path, translate that into a local path.
-			return {
-				source: this.relative_to_global(sm.sources[0]),
-				line: original.line,
-				column: original.column,
-			}
+			return original;
 		} catch (e) {
 			var ret = Object.assign({}, sourceLocation);
 			ret.source = this.relative_to_global(sourceLocation.source);
