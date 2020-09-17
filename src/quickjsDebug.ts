@@ -218,10 +218,11 @@ export class QuickJSDebugSession extends SourceMapSession {
 
 		let cwd = <string>args.cwd || path.dirname(args.program);
 		let run_args = (args.args || []).slice();
-		run_args.push(`--js-debugger-connect ${connection.hostname}:${connection.port}`);
-		run_args.push(`--path ${cwd}`);
-		const command_line = `${args.program} ${run_args.join(" ")}`;
-		const nodeProcess = CP.exec(command_line);
+		run_args.push(`--js-debugger-connect`);
+		run_args.push(`${connection.hostname}:${connection.port}`);
+		run_args.push(`--path`);
+		run_args.push(cwd);
+		const nodeProcess = CP.spawn(args.program, run_args);
 		nodeProcess.on('error', (error) => {
 			// tslint:disable-next-line:no-bitwise
 			this.sendErrorResponse(response, 2017, `Cannot launch debug target (${error.message}).`);
