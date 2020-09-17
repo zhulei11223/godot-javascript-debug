@@ -33,11 +33,12 @@ export abstract class SourceMapSession extends LoggingDebugSession {
 				const smc = await this.load_source_map(source_map_file);
 				let js_file = normalize(source_map_file.substring(0, source_map_file.length - ".map".length));
 				if (fs.existsSync(js_file)) {
-					js_file = this.global_to_relative(js_file);
+					js_file = normalize(this.global_to_relative(js_file));
 				} else {
 					js_file = normalize(smc.file);
 				}
 				smc.file = js_file;
+				smc.sourceRoot = commonArgs.cwd;
 				this._generatedfileToSourceMap.set(js_file, smc);
 				for (const s of smc.sources) {
 					this._sourceMaps.set(this.global_to_relative(s), smc);
@@ -67,10 +68,11 @@ export abstract class SourceMapSession extends LoggingDebugSession {
 		await this._sourceMapsLoadingPromise;
 
 		try {
-			const workspace_path = this.global_to_relative(sourceLocation.source);
+			const workspace_path = normalize(this.global_to_relative(sourceLocation.source));
 			const sm = this._sourceMaps.get(workspace_path);
 			if (!sm) throw new Error('no source map');
 			const actualSourceLocation = Object.assign({}, sourceLocation);
+			actualSourceLocation.source = normalize(actualSourceLocation.source);
 			var unmappedPosition: NullablePosition = sm.generatedPositionFor(actualSourceLocation);
 			if (!unmappedPosition.line === null) throw new Error('map failed');
 			return {

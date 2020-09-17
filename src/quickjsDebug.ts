@@ -204,7 +204,6 @@ export class QuickJSDebugSession extends SourceMapSession {
 
 	protected async launchRequest(response: DebugProtocol.LaunchResponse, args: LaunchRequestArguments) {
 		this._commonArgs = args;
-		this._commonArgs.trace = true;
 		this.closeServer();
 		let connection: ConnectionConfig;
 		try {
