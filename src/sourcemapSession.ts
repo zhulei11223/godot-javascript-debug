@@ -10,6 +10,7 @@ export abstract class SourceMapSession extends LoggingDebugSession {
 
 	private _generatedfileToSourceMap = new Map<string, BasicSourceMapConsumer>();
 	private _sourceMaps = new Map<string, BasicSourceMapConsumer>();
+	private _sourceMapsLoadingPromise: Promise<void>;
 
 	protected abstract log(message: string): void;
 	protected abstract get_configs(): CommonArguments;
@@ -22,25 +23,30 @@ export abstract class SourceMapSession extends LoggingDebugSession {
 	}
 
 	protected async loadSourceMaps() {
-		const commonArgs = this.get_configs();
-		if (!commonArgs.sourceMaps === false) return;
-		// options is optional
-		const files = glob.sync("**/*.map", { cwd: commonArgs.cwd });
-		for (const file of files) {
-			const source_map_file: string = path.join(commonArgs.cwd, file);
-			const smc = await this.load_source_map(source_map_file);
-			let js_file = normalize(source_map_file.substring(0, source_map_file.length - ".map".length));
-			if (fs.existsSync(js_file)) {
-				js_file = this.global_to_relative(js_file);
-			} else {
-				js_file = normalize(smc.file);
+		this._sourceMapsLoadingPromise = new Promise(async res => {
+			const commonArgs = this.get_configs();
+			if (!commonArgs.sourceMaps === false) return;
+			// options is optional
+			const files = glob.sync("**/*.map", { cwd: commonArgs.cwd });
+			for (const file of files) {
+				const source_map_file: string = path.join(commonArgs.cwd, file);
+				const smc = await this.load_source_map(source_map_file);
+				let js_file = normalize(source_map_file.substring(0, source_map_file.length - ".map".length));
+				if (fs.existsSync(js_file)) {
+					js_file = normalize(this.global_to_relative(js_file));
+				} else {
+					js_file = normalize(smc.file);
+				}
+				smc.file = js_file;
+				smc.sourceRoot = commonArgs.cwd;
+				this._generatedfileToSourceMap.set(js_file, smc);
+				for (const s of smc.sources) {
+					this._sourceMaps.set(this.global_to_relative(s), smc);
+				}
 			}
-			smc.file = js_file;
-			this._generatedfileToSourceMap.set(js_file, smc);
-			for (const s of smc.sources) {
-				this._sourceMaps.set(this.global_to_relative(s), smc);
-			}
-		}
+			res();
+		});
+		await this._sourceMapsLoadingPromise;
 	}
 
 	private global_to_relative(p_file) {
@@ -58,12 +64,15 @@ export abstract class SourceMapSession extends LoggingDebugSession {
 	}
 
 
-	translateFileLocationToRemote(sourceLocation: MappedPosition): MappedPosition {
+	async translateFileLocationToRemote(sourceLocation: MappedPosition): Promise<MappedPosition> {
+		await this._sourceMapsLoadingPromise;
+
 		try {
-			const workspace_path = this.global_to_relative(sourceLocation.source);
+			const workspace_path = normalize(this.global_to_relative(sourceLocation.source));
 			const sm = this._sourceMaps.get(workspace_path);
 			if (!sm) throw new Error('no source map');
 			const actualSourceLocation = Object.assign({}, sourceLocation);
+			actualSourceLocation.source = normalize(actualSourceLocation.source);
 			var unmappedPosition: NullablePosition = sm.generatedPositionFor(actualSourceLocation);
 			if (!unmappedPosition.line === null) throw new Error('map failed');
 			return {
@@ -79,7 +88,9 @@ export abstract class SourceMapSession extends LoggingDebugSession {
 		}
 	}
 
-	translateRemoteLocationToLocal(sourceLocation: MappedPosition): MappedPosition {
+	async translateRemoteLocationToLocal(sourceLocation: MappedPosition): Promise<MappedPosition> {
+		await this._sourceMapsLoadingPromise;
+
 		sourceLocation.source = sourceLocation.source.replace("res://", "");
 		try {
 			const sm = this._generatedfileToSourceMap.get(sourceLocation.source);
