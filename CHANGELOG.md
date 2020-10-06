@@ -1,3 +1,7 @@
+0.1.5
+- Fix cannot luanch game from debugger on Linux
+- Add `sourceRoot` configuration to for sourcemap resolving
+
 0.1.4
 - Improve SourceMap resolving
 - Improve godot process launche process for debugger
