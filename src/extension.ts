@@ -8,6 +8,7 @@ import * as vscode from 'vscode';
 import { WorkspaceFolder, DebugConfiguration, ProviderResult, CancellationToken } from 'vscode';
 import { QuickJSDebugSession } from './quickjsDebug';
 import * as Net from 'net';
+import * as path from 'path';
 import * as normalize from 'normalize-path';
 
 export function activate(context: vscode.ExtensionContext) {
@@ -36,6 +37,8 @@ class QuickJSConfigurationProvider implements vscode.DebugConfigurationProvider 
 		const workspace_root = normalize(folder.uri.fsPath);
 		config.cwd = config.cwd || workspace_root;
 		config.cwd = config.cwd.replace("${workspaceFolder}", workspace_root);
+		config.sourceRoot = config.sourceRoot || path.join(workspace_root, 'scripts');
+		config.sourceRoot = config.sourceRoot.replace("${workspaceFolder}", workspace_root);
 		if (config.program) {
 			config.program = config.program.replace("${workspaceFolder}", workspace_root);
 		}

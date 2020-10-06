@@ -1,7 +1,7 @@
 {
 	"name": "godot-javascript-debug",
 	"displayName": "Godot JavaScript Debugger",
-	"version": "0.1.3",
+	"version": "0.1.4",
 	"publisher": "geequlim",
 	"description": "Debug the Godot Game runtime.",
 	"author": {
@@ -109,6 +109,11 @@
 								"description": "Use JavaScript source maps (if they exist)",
 								"default": true
 							},
+							"sourceRoot": {
+								"type": "string",
+								"default": "${workspaceRoot}/scripts",
+								"description": "The root directory of your source code"
+							},
 							"sourceMapPathOverrides": {
 								"type": "object",
 								"description": "A set of mappings for rewriting the locations of source files from what the sourcemap says, to their locations on disk.",
@@ -137,6 +142,11 @@
 								"type": "boolean",
 								"description": "Use JavaScript source maps (if they exist)",
 								"default": true
+							},
+							"sourceRoot": {
+								"type": "string",
+								"default": "${workspaceRoot}/scripts",
+								"description": "The root directory of your source code"
 							},
 							"sourceMapPathOverrides": {
 								"type": "object",

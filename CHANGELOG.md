@@ -1,3 +1,7 @@
+0.1.4
+- Improve SourceMap resolving
+- Improve godot process launche process for debugger
+
 0.1.3
 - Improve SourceMap resolving
 

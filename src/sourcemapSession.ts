@@ -17,7 +17,7 @@ export abstract class SourceMapSession extends LoggingDebugSession {
 
 	private async load_source_map(p_path: string): Promise<BasicSourceMapConsumer> {
 		const json = JSON.parse(fs.readFileSync(p_path).toString());
-		if (!json.sourceRoot) json.sources = json.sources.map(source => path.resolve(path.dirname(p_path), source));
+		if (!json.sourceRoot) json.sources = json.sources.map(source => path.resolve(this.get_configs().sourceRoot, source));
 		const smc = await new SourceMapConsumer(json);
 		return smc;
 	}
@@ -38,7 +38,6 @@ export abstract class SourceMapSession extends LoggingDebugSession {
 					js_file = normalize(smc.file);
 				}
 				smc.file = js_file;
-				smc.sourceRoot = commonArgs.cwd;
 				this._generatedfileToSourceMap.set(js_file, smc);
 				for (const s of smc.sources) {
 					this._sourceMaps.set(this.global_to_relative(s), smc);
