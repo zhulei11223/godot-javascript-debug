@@ -387,7 +387,7 @@ export class QuickJSDebugSession extends SourceMapSession {
 		const bps = args.breakpoints || [];
 		const mappedBreakpoints: MappedPosition[] = [];
 		for (let bp of bps) {
-			const mappedPositions = await this.translateFileLocationToRemote({
+			const mappedPositions = this.translateFileLocationToRemote({
 				source: args.source.path,
 				column: bp.column || 0,
 				line: bp.line,
@@ -446,7 +446,7 @@ export class QuickJSDebugSession extends SourceMapSession {
 			this._stackFrames.set(mappedId, thread);
 
 			try {
-				const mappedLocation = await this.translateRemoteLocationToLocal({
+				const mappedLocation = this.translateRemoteLocationToLocal({
 					source: filename,
 					line: line || 0,
 					column: column || 0,
