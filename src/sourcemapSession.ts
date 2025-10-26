@@ -47,14 +47,14 @@ export abstract class SourceMapSession extends LoggingDebugSession {
 		const normalized = normalize(p_file);
 		if (!path.isAbsolute(normalized)) return normalized;
 		const commonArgs = this.get_configs();
-		return path.relative(commonArgs.cwd, normalized);
+		return path.posix.relative(commonArgs.cwd, normalized);
 	}
 
 	private relative_to_global(p_file) {
 		const normalized = normalize(p_file);
 		if (path.isAbsolute(normalized)) return normalized;
 		const commonArgs = this.get_configs();
-		return path.join(commonArgs.cwd, normalized);
+		return path.posix.join(commonArgs.cwd, normalized);
 	}
 
 
